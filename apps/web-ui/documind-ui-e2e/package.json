@@ -1,0 +1,8 @@
+{
+  "name": "@docu-mind/documind-ui-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "documind-ui-e2e"
+  }
+}
