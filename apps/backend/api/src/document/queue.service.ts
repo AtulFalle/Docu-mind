@@ -3,9 +3,11 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as amqp from 'amqplib';
+import { EventEmitter } from 'events';
 
 @Injectable()
 export class QueueService implements OnModuleInit {
+  public readonly events = new EventEmitter();
   private readonly logger = new Logger(QueueService.name);
   private channel: any = null;
   private connection: any = null;
@@ -78,6 +80,20 @@ export class QueueService implements OnModuleInit {
       });
 
       await this.channel.assertQueue('document_queue', { durable: true });
+      
+      await this.channel.assertQueue('document_status_queue', { durable: true });
+      this.channel.consume('document_status_queue', (msg: any) => {
+        if (msg) {
+          try {
+            const content = JSON.parse(msg.content.toString());
+            this.events.emit(content.event, content.data);
+            this.channel.ack(msg);
+          } catch (e) {
+            this.logger.error(`Error processing status message: ${e}`);
+            this.channel.nack(msg, false, false);
+          }
+        }
+      });
       
       this.logger.log('RabbitMQ connection established successfully');
       this.reconnectAttempts = 0;

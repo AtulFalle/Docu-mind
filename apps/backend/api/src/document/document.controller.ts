@@ -46,6 +46,13 @@ export class DocumentController {
     return this.service.upload(file);
   }
 
+  @ApiOperation({ summary: 'List all documents' })
+  @ApiResponse({ status: 200, description: 'Return a list of all documents' })
+  @Get()
+  async findAll() {
+    return this.service.findAll();
+  }
+
   @ApiOperation({ summary: 'Query a document with AI' })
   @ApiParam({ name: 'docId', description: 'Document ID' })
   @ApiBody({
