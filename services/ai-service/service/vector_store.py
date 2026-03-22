@@ -1,15 +1,15 @@
 from qdrant_client import QdrantClient
-from qdrant_client.models import Filter, FieldCondition, MatchValue
-from config import *
+from qdrant_client.models import Filter, FieldCondition, MatchValue, VectorParams, Distance
+from config import QDRANT_HOST, COLLECTION_NAME
 
 client = QdrantClient(host=QDRANT_HOST, port=6333)
 
 def init_collection():
     if COLLECTION_NAME not in [c.name for c in client.get_collections().collections]:
-    client.create_collection(
-        collection_name=COLLECTION_NAME,
-        vectors_config=VectorParams(size=768, distance=Distance.COSINE)
-    )
+        client.create_collection(
+            collection_name=COLLECTION_NAME,
+            vectors_config=VectorParams(size=768, distance=Distance.COSINE)
+        )
 
 def store_vectors(doc_id, vectors):
     points = []

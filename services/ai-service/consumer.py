@@ -23,6 +23,22 @@ def callback(ch, method, properties, body):
             
             logger.info(f"Document {data['docId']} processing completed")
 
+            try:
+                ch.basic_publish(
+                    exchange='',
+                    routing_key='document_status_queue',
+                    body=json.dumps({
+                        "event": "document.processed",
+                        "data": {
+                            "docId": data["docId"],
+                            "status": "completed"
+                        }
+                    }),
+                    properties=pika.BasicProperties(delivery_mode=2)
+                )
+            except Exception as pub_e:
+                logger.error(f"Error publishing completion status: {str(pub_e)}")
+
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         logger.error(f"Error processing message: {str(e)}", exc_info=True)
