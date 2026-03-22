@@ -2,7 +2,7 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 COPY . .
-RUN npm install
+RUN npm install --force --legacy-peer-deps
 RUN npx nx build documind-ui --configuration=production
 
 FROM nginx:stable-alpine

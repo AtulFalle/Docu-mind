@@ -107,3 +107,67 @@ And join the Nx community:
 - [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
 - [Our Youtube channel](https://www.youtube.com/@nxdevtools)
 - [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+
+## Document upload & extraction flow (api → rabbitmq → ai-service)
+
+This section describes the runtime path for a user-uploaded document through the system to the AI extraction service.
+
+### 1) Upload entrypoint: `apps/backend/api`
+
+1. User uploads file via POST `/documents/upload` handled by `DocumentController`.
+2. `DocumentService.upload(file)` executes:
+   - `VirusService.scan(file.buffer)` checks malware; rejects with `400` if infected.
+   - `StorageService.ensureBucket('documents')` creates MinIO bucket as needed.
+   - `StorageService.upload('documents', \\${docId}.pdf', buffer)` stores the payload in MinIO.
+   - `QueueService.publish({event:'document.uploaded', data:{docId,bucket,key,type:'resume'}})` sends RabbitMQ event.
+
+### 2) Queue bus: `QueueService` (`document_queue`)
+
+- Config is resolved from env:
+  - `RABBITMQ_URL` if set, else
+  - `amqp://<user>:<password>@<host>:<port>` with defaults `guest:guest@rabbitmq:5672`.
+- On module init (`OnModuleInit`): `connect()` establishes RabbitMQ connection and channel, asserts `document_queue` durable.
+- Reconnection logic:
+  - On errors/close it resets channel and tries reconnect with exponential backoff.
+  - `publish()` re-checks channel; if missing it calls `connect()` before sending.
+- Message payload (JSON):
+  - `event: 'document.uploaded'`
+  - `data: { docId, bucket:'documents', key:'uuid.pdf', type:'resume' }`
+  - `timestamp`, `id`
+
+### 3) AI consumer: `services/ai-service` (RabbitMQ subscriber)
+
+1. `consumer.py` (in `services/ai-service`) listens to the same queue `document_queue`.
+2. When message arrives, it reads payload:
+   - `docId`, `bucket`, `key` from `data`
+   - `event` (upload event type)
+3. It then fetches document from MinIO using configured `MINIO_HOST`, access key/secret.
+4. Applies text extraction / vectorization pipeline (e.g., `service/pipeline.py`, `service/extractor.py`, `service/chunker.py`), then stores embeddings in Qdrant or DB depending project design.
+
+### 4) Success path and retries
+
+- If RabbitMQ or channel is down during publish, the API logs clearly and still returns upload success to user (non-blocking queue). This prevents upload failure while queue is temporarily unreachable.
+- AI consumer should acknowledge or reject messages based on extraction success. `service/consumer.py` retries or dead-letters failing rows if configured.
+
+### Environment variables (minimum for local dev)
+
+- `QUEUE_ENABLED=true`
+- `RABBITMQ_HOST=rabbitmq` (or `localhost` if direct local broker)
+- `RABBITMQ_PORT=5672`
+- `RABBITMQ_USER=guest`
+- `RABBITMQ_PASSWORD=guest`
+- `MINIO_HOST=minio:9000`
+- `MINIO_ACCESS_KEY=minioadmin`
+- `MINIO_SECRET_KEY=minioadmin`
+
+### Local dev run (no Docker rebuild for small API changes)
+
+- `npm run serve:api:watch` (hot reload via Nx)
+- `npm run build:api:watch` (keep incremental builds running)
+
+### Validation checklist
+
+- Create a test file and `POST /documents/upload` → response should include `docId`, `status: 'uploaded'`.
+- Check API logs for `Message published to queue...` and `RabbitMQ connection established successfully`.
+- Visit RabbitMQ management at `http://localhost:15672`, check `document_queue` delivery count.
+- Confirm `ai-service` received event and processed document from MinIO, writing to storage (Qdrant/db) as expected.
