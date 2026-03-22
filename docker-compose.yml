@@ -3,7 +3,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./apps/backend/api/.dockerfile
+      dockerfile: ./apps/backend/api/dockerfile
     ports:
       - "3000:3000"
     depends_on:
@@ -198,6 +198,29 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./monitoring/promtail-config.yml:/etc/promtail/config.yml
     command: -config.file=/etc/promtail/config.yml
+    networks:
+      - documind-net
+  ai-service:
+    build:
+      context: ./services/ai-service
+    container_name: documind-ai-service
+    depends_on:
+      - rabbitmq
+      - qdrant
+      - minio
+      - ollama
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: "6333"
+      MINIO_HOST: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      OLLAMA_URL: http://ollama:11434
+      COLLECTION_NAME: documents
     networks:
       - documind-net
 
