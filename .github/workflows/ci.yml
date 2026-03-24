@@ -23,7 +23,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install --force --legacy-peer-deps
+        run: npm ci
 
       - name: Derive appropriate SHAs for base and head for nx affected
         uses: nrwl/nx-set-shas@v4
