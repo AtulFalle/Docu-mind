@@ -1,27 +1,19 @@
 # PRODUCTION-OPTIMIZED DOCKERFILE FOR NESTJS (Nx Monorepo)
-# Uses Runner-side build & node_modules cache reuse.
+# Uses Runner-side build & staging context.
 
 FROM node:22-slim
 
 WORKDIR /app
 
-# The context MUST be the Workspace Root (.)
-# It must contain:
-# 1. node_modules (pre-pruned to production on the runner)
-# 2. dist/apps/backend/<project-name>
+# The context is a STAGING folder containing:
+# 1. node_modules (pruned to production)
+# 2. Pre-built application files (main.js, package.json, etc.)
 
 ENV NODE_ENV=production
 
-# Argument to specify which project's distribution to copy
-ARG PROJECT_NAME
-ENV PROJECT_NAME=${PROJECT_NAME}
-
-# Copy the pre-installed production dependencies from the runner
-COPY node_modules ./node_modules
-
-# Copy the compiled application code
-# Path matches Nx default: dist/apps/backend/<project-name>
-COPY dist/apps/backend/${PROJECT_NAME} .
+# Copy everything from the staging context
+COPY . .
 
 # Set entry point
+# Assumes main.js is in the root of the staging folder
 CMD ["node", "main.js"]

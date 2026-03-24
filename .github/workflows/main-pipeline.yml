@@ -94,7 +94,8 @@ jobs:
         include:
           - project: api
             is_node: true
-            context: .
+            dist_path: ./dist/apps/backend/api
+            context: ./docker-context-api
             dockerfile: docker/Dockerfile.nestjs
           - project: ai-service
             is_node: false
@@ -130,11 +131,14 @@ jobs:
         if: steps.cache-nodemodules.outputs.cache-hit != 'true'
         run: npm ci --legacy-peer-deps
 
-      - name: Runner-Side Build (Node Apps)
+      - name: Runner-Side Build & Stage (Node Apps)
         if: matrix.is_node == true
         run: |
           npx nx build ${{ matrix.project }} --prod
           npm prune --production --legacy-peer-deps
+          mkdir -p ${{ matrix.context }}
+          cp -r node_modules ${{ matrix.context }}/
+          cp -r ${{ matrix.dist_path }}/* ${{ matrix.context }}/
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
