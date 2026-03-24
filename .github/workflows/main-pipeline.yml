@@ -156,7 +156,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.project }}
           tags: |
-            type=sha,format=short
+            type=sha,format=long,prefix=
             type=ref,event=branch
 
       - name: Build and Push
@@ -172,4 +172,4 @@ jobs:
           build-args: |
             PROJECT_NAME=${{ matrix.project }}
           cache-from: type=gha
-          cache-to: type=gha,max
+          cache-to: type=gha,mode=max

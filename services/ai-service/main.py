@@ -1,4 +1,3 @@
-# CI/CD Build Trigger
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import threading
@@ -11,7 +10,6 @@ from consumer import start as start_consumer
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Start RabbitMQ consumer in background thread
 consumer_thread = None
 
 @asynccontextmanager

@@ -1,7 +1,6 @@
 /**
  * This is not a production server yet!
  * This is only a minimal backend to get started.
- * Triggering manual build for CI/CD validation.
  */
 
 import { Logger } from '@nestjs/common';
