@@ -1,54 +1,21 @@
-# --- STAGE 1: Build stage ---
-FROM node:22-alpine AS builder
-
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
+# PRODUCTION-READY DOCKERFILE FOR NESTJS (Nx Monorepo)
+# Optimized for Runner-side builds.
+FROM node:22-alpine
 
 WORKDIR /app
 
-# Copy critical package files first
-COPY package.json package-lock.json ./
-
-# Install all dependencies (requires devDeps for build)
-RUN npm ci --include=dev --legacy-peer-deps
-
-# Copy entire source
-COPY . .
-
-# Argument to build specific project (e.g., api)
-ARG PROJECT_NAME
-ENV PROJECT_NAME=${PROJECT_NAME}
-
-# Run build
-RUN npx nx build ${PROJECT_NAME} --prod
-
-# Optional: if you use @nx/js:prune-lockfile, you'd run it here
-# For simplicity, we assume the app outputs to dist/apps/<project-name>
-# or dist/apps/backend/<project-name>. Let's normalize it to just PROJECT_NAME
-# in the workflow calling build-args.
-
-# --- STAGE 2: Deployment stage ---
-FROM node:22-alpine AS runner
-
-WORKDIR /app
-
+# Set environment to production
 ENV NODE_ENV=production
 
-# Re-copy only the built app and its runtime dependencies
-# In standard Nx, dist/apps/backend/api/main.js is common
-# We will use an argument to locate it.
-ARG PROJECT_NAME
-ENV PROJECT_NAME=${PROJECT_NAME}
-
-# Copy package.json to install only production dependencies
+# The build context MUST be the dist folder (e.g., dist/apps/backend/api)
+# This folder must contain pruned package.json and package-lock.json (via nx prune-lockfile)
 COPY package.json package-lock.json ./
+
+# Install only production dependencies (FAST: no dev dependencies)
 RUN npm ci --omit=dev --legacy-peer-deps
 
-# Copy the built output from builder stage
-# If your project is at apps/backend/api, the output is dist/apps/backend/api
-# This dockerfile expects the build artifact structure.
-# NOTE: Adjust paths below if needed (e.g., dist/apps/backend/$PROJECT_NAME)
-COPY --from=builder /app/dist/apps/backend/${PROJECT_NAME} .
+# Copy the compiled code from the dist context
+COPY . .
 
-# Run the app
+# Entry point for NestJS apps
 CMD ["node", "main.js"]

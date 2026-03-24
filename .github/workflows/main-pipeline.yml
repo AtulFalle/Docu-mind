@@ -93,11 +93,13 @@ jobs:
       matrix:
         include:
           - project: api
-            context: .
-            file: docker/Dockerfile.nestjs
+            is_node: true
+            context: ./dist/apps/backend/api
+            dockerfile: docker/Dockerfile.nestjs
           - project: ai-service
+            is_node: false
             context: ./services/ai-service
-            file: services/ai-service/dockerfile
+            dockerfile: services/ai-service/dockerfile
     
     steps:
       - name: Checkout
@@ -128,6 +130,12 @@ jobs:
         if: steps.cache-nodemodules.outputs.cache-hit != 'true'
         run: npm ci --legacy-peer-deps
 
+      - name: Runner-Side Build (Node Apps)
+        if: matrix.is_node == true
+        run: |
+          npx nx build ${{ matrix.project }} --prod
+          npx nx run ${{ matrix.project }}:prune-lockfile
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -151,7 +159,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.context }}
-          file: ${{ matrix.file }}
+          file: ${{ matrix.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
