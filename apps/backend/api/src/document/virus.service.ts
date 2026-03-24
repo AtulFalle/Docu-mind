@@ -20,7 +20,7 @@ export class VirusService implements OnModuleInit {
     this.virusScanningEnabled = process.env.VIRUS_SCANNING_ENABLED !== 'false';
   }
 
-  async onModuleInit() {
+  async onModuleInit(): Promise<void> {
     if (this.virusScanningEnabled) {
       try {
         await this.initializeClamScan();

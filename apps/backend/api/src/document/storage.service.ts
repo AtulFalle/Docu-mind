@@ -18,7 +18,7 @@ export class StorageService {
     }
   }
 
-  private initializeClient() {
+  private initializeClient(): void {
     try {
       this.client = new Client({
         endPoint: process.env.MINIO_ENDPOINT || 'minio',

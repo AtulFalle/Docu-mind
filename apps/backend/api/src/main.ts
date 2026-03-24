@@ -6,9 +6,11 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { SwaggerModule, DocumentBuilder, OpenAPIObject } from '@nestjs/swagger';
 
-async function bootstrap() {
+const DEFAULT_PORT = 3000;
+
+async function bootstrap(): Promise<void> {
   
   const app = await NestFactory.create(AppModule);
 
@@ -18,10 +20,12 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('documents')
     .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  const documentFactory = (): OpenAPIObject => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
-  Logger.log('app starting on port 3000');
-  await app.listen(process.env.PORT ?? 3000);
+  
+  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : DEFAULT_PORT;
+  Logger.log(`app starting on port ${port}`);
+  await app.listen(port);
   
 }
 
