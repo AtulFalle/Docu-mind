@@ -91,8 +91,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Define the core deployable services here
-        project: [api, ai-service] 
+        include:
+          - project: api
+            context: .
+            file: docker/Dockerfile.nestjs
+          - project: ai-service
+            context: ./services/ai-service
+            file: services/ai-service/dockerfile
     
     steps:
       - name: Checkout
@@ -145,9 +150,8 @@ jobs:
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
-          context: .
-          # Routing to the correct Dockerfile
-          file: ${{ matrix.project == 'ai-service' && 'services/ai-service/dockerfile' || 'docker/Dockerfile.nestjs' }}
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
