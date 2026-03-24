@@ -10,7 +10,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install all dependencies (requires devDeps for build)
-RUN npm ci --include=dev
+RUN npm ci --include=dev --legacy-peer-deps
 
 # Copy entire source
 COPY . .
@@ -42,7 +42,7 @@ ENV PROJECT_NAME=${PROJECT_NAME}
 
 # Copy package.json to install only production dependencies
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm ci --omit=dev --legacy-peer-deps
 
 # Copy the built output from builder stage
 # If your project is at apps/backend/api, the output is dist/apps/backend/api

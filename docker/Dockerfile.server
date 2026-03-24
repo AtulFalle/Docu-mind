@@ -10,7 +10,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install ALL dependencies (needs dev deps for building)
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Copy the entire Nx monorepo source (can be optimized with .dockerignore)
 COPY . .
@@ -35,7 +35,7 @@ ENV NODE_ENV=production
 COPY package.json package-lock.json ./
 
 # Install ONLY production dependencies to keep the image small
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --legacy-peer-deps
 
 # Argument to specify project name again for the copy step
 ARG PROJECT_NAME
