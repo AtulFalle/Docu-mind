@@ -1,6 +1,7 @@
 /**
  * This is not a production server yet!
  * This is only a minimal backend to get started.
+ * Triggering manual build for CI/CD validation.
  */
 
 import { Logger } from '@nestjs/common';
@@ -15,7 +16,7 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('DocuMind ')
+    .setTitle('Docu-Mind ')
     .setDescription('The DocuMind API description')
     .setVersion('1.0')
     .addTag('documents')
@@ -24,7 +25,7 @@ async function bootstrap(): Promise<void> {
   SwaggerModule.setup('api', app, documentFactory);
   
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : DEFAULT_PORT;
-  Logger.log(`app starting on port ${port}`);
+  Logger.log(`app starting on port = ${port}`);
   await app.listen(port);
   
 }
