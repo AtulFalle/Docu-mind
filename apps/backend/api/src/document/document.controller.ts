@@ -18,6 +18,7 @@ import {
   ApiParam
 } from '@nestjs/swagger';
 import { DocumentService } from './document.service';
+import { Document } from './document.schema';
 
 @Controller('documents')
 export class DocumentController {
@@ -42,14 +43,14 @@ export class DocumentController {
   @ApiResponse({ status: 400, description: 'Bad request - invalid file or file is infected with malware' })
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  async upload(@UploadedFile() file: Express.Multer.File) {
+  async upload(@UploadedFile() file: Express.Multer.File): Promise<{ docId: string; status: string }> {
     return this.service.upload(file);
   }
 
   @ApiOperation({ summary: 'List all documents' })
   @ApiResponse({ status: 200, description: 'Return a list of all documents' })
   @Get()
-  async findAll() {
+  async findAll(): Promise<Document[]> {
     return this.service.findAll();
   }
 
@@ -72,7 +73,7 @@ export class DocumentController {
   @ApiResponse({ status: 404, description: 'Document not found' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @Post(':docId/query')
-  async query(@Param('docId') docId: string, @Body() body: { question: string }) {
+  async query(@Param('docId') docId: string, @Body() body: { question: string }): Promise<unknown> {
     return this.service.query(docId, body.question);
   }
 }

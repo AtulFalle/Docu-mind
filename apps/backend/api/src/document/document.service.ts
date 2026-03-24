@@ -1,6 +1,6 @@
 // document.service.ts
 
-import { Injectable, BadRequestException, NotFoundException, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, OnModuleInit, Logger, HttpStatus } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { v4 as uuid } from 'uuid';
@@ -23,7 +23,7 @@ export class DocumentService implements OnModuleInit {
     private httpService: HttpService,
   ) {}
 
-  onModuleInit() {
+  onModuleInit(): void {
     this.queue.events.on('document.processed', async (data) => {
       if (data && data.docId && data.status) {
         try {
@@ -39,7 +39,7 @@ export class DocumentService implements OnModuleInit {
     });
   }
 
-  async upload(file: Express.Multer.File) {
+  async upload(file: Express.Multer.File): Promise<{ docId: string; status: string }> {
     const docId = uuid();
     const bucket = 'documents';
     const key = `${docId}.pdf`;
@@ -80,7 +80,7 @@ export class DocumentService implements OnModuleInit {
     };
   }
 
-  async query(docId: string, question: string) {
+  async query(docId: string, question: string): Promise<unknown> {
     try {
       // Call ai-service query endpoint
       const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000';
@@ -92,15 +92,16 @@ export class DocumentService implements OnModuleInit {
       );
 
       return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
+    } catch (error: unknown) {
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-explicit-any
+      if ((error as any).response?.status === HttpStatus.NOT_FOUND) {
         throw new NotFoundException('Document not found or not processed');
       }
       throw new BadRequestException('Failed to query document');
     }
   }
 
-  async findAll() {
+  async findAll(): Promise<Document[]> {
     return this.documentModel.find().sort({ createdAt: -1 }).exec();
   }
 }
