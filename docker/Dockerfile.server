@@ -1,0 +1,55 @@
+# STAGE 1: Build Stage
+FROM node:22-alpine AS builder
+
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat
+
+WORKDIR /app
+
+# Copy lock files and package.json to leverage Docker layer caching
+COPY package.json package-lock.json ./
+
+# Install ALL dependencies (needs dev deps for building)
+RUN npm ci
+
+# Copy the entire Nx monorepo source (can be optimized with .dockerignore)
+COPY . .
+
+# Argument to specify which service to build
+ARG PROJECT_NAME
+ENV PROJECT_NAME=${PROJECT_NAME}
+
+# Run the Nx build command
+# Using --prod if applicable, but usually Nx manages configurations well
+RUN npx nx build ${PROJECT_NAME} --prod
+
+# STAGE 2: Runtime Stage
+FROM node:22-alpine AS runner
+
+WORKDIR /app
+
+# Use production environment
+ENV NODE_ENV=production
+
+# Re-copy package.json etc. for production install
+COPY package.json package-lock.json ./
+
+# Install ONLY production dependencies to keep the image small
+RUN npm ci --omit=dev
+
+# Argument to specify project name again for the copy step
+ARG PROJECT_NAME
+ENV PROJECT_NAME=${PROJECT_NAME}
+
+# Copy the built output from the builder stage
+# Standard Nx dist path: dist/apps/backend/<app-name> or dist/apps/<app-name>
+# Let's verify the actual dist structure in the repo
+COPY --from=builder /app/dist/apps/${PROJECT_NAME} ./dist
+# If the app depends on core files outside of its dist, they must be included.
+# Most NestJS apps are bundled but might need additional files (like assets/env).
+
+# Optional: Copy common assets if needed
+# COPY --from=builder /app/dist/libs ./libs 
+
+# Typically we start with the main file
+CMD ["node", "dist/main.js"]

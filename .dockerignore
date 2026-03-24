@@ -1,5 +1,23 @@
+# Standard exclusions
 node_modules
-dist
 .git
-Dockerfile
-docker-compose.yml
+.github
+.nx
+dist
+tmp
+out-tsc
+
+# IDE files
+.vscode
+.idea
+*.env*
+!*.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+docs
+LICENSE
