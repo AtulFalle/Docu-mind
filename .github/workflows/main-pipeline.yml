@@ -94,7 +94,7 @@ jobs:
         include:
           - project: api
             is_node: true
-            context: ./dist/apps/backend/api
+            context: .
             dockerfile: docker/Dockerfile.nestjs
           - project: ai-service
             is_node: false
@@ -134,7 +134,7 @@ jobs:
         if: matrix.is_node == true
         run: |
           npx nx build ${{ matrix.project }} --prod
-          npx nx run ${{ matrix.project }}:prune-lockfile
+          npm prune --production --legacy-peer-deps
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

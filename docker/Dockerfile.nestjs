@@ -1,21 +1,27 @@
-# PRODUCTION-READY DOCKERFILE FOR NESTJS (Nx Monorepo)
-# Optimized for Runner-side builds.
-FROM node:22-alpine
+# PRODUCTION-OPTIMIZED DOCKERFILE FOR NESTJS (Nx Monorepo)
+# Uses Runner-side build & node_modules cache reuse.
+
+FROM node:22-slim
 
 WORKDIR /app
 
-# Set environment to production
+# The context MUST be the Workspace Root (.)
+# It must contain:
+# 1. node_modules (pre-pruned to production on the runner)
+# 2. dist/apps/backend/<project-name>
+
 ENV NODE_ENV=production
 
-# The build context MUST be the dist folder (e.g., dist/apps/backend/api)
-# This folder must contain pruned package.json and package-lock.json (via nx prune-lockfile)
-COPY package.json package-lock.json ./
+# Argument to specify which project's distribution to copy
+ARG PROJECT_NAME
+ENV PROJECT_NAME=${PROJECT_NAME}
 
-# Install only production dependencies (FAST: no dev dependencies)
-RUN npm ci --omit=dev --legacy-peer-deps
+# Copy the pre-installed production dependencies from the runner
+COPY node_modules ./node_modules
 
-# Copy the compiled code from the dist context
-COPY . .
+# Copy the compiled application code
+# Path matches Nx default: dist/apps/backend/<project-name>
+COPY dist/apps/backend/${PROJECT_NAME} .
 
-# Entry point for NestJS apps
+# Set entry point
 CMD ["node", "main.js"]
