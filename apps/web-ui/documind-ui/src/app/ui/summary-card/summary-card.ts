@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MATERIAL_MODULES } from '@docu-mind/ui-material';
 
 @Component({
-  selector: 'ui-summary-card',
+  selector: 'app-summary-card',
   standalone: true,
   imports: [CommonModule, ...MATERIAL_MODULES],
   templateUrl: './summary-card.html',

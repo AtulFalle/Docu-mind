@@ -4,7 +4,7 @@ import { MATERIAL_MODULES } from '@docu-mind/ui-material';
 import { DocumentDto, DocumentStatus } from '../../core/models/types';
 
 @Component({
-  selector: 'ui-document-table',
+  selector: 'app-document-table',
   standalone: true,
   imports: [CommonModule, ...MATERIAL_MODULES],
   templateUrl: './document-table.html',
@@ -28,11 +28,11 @@ export class DocumentTableComponent {
     }
   }
 
-  onView(id: string) {
+  onView(id: string):void {
     this.view.emit(id);
   }
 
-  onDelete(id: string) {
+  onDelete(id: string):void {
     this.delete.emit(id);
   }
 }

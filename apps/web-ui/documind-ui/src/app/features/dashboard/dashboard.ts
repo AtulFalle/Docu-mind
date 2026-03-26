@@ -38,28 +38,17 @@ export class DashboardComponent {
     };
   });
 
-  onViewDocument(id: string) {
-    console.log('Viewing document:', id);
-  }
-
-  onDeleteDocument(id: string) {
-    console.log('Deleting document:', id);
-  }
-
-  onRefresh() {
+  onRefresh():void {
     this.documents.reload();
   }
 
-  async onUploadFile(file: File) {
+  async onUploadFile(file: File): Promise<void> {
     this.isUploading.set(true);
     this.uploadSuccess.set(false);
 
     try {
       await this.documentService.uploadFile(file);
       this.uploadSuccess.set(true);
-      
-      // Reset success message after 3 seconds
-      setTimeout(() => this.uploadSuccess.set(false), 3000);
     } catch (error) {
       console.error('Error uploading file:', error);
     } finally {

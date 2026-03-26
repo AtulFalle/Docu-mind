@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MATERIAL_MODULES } from '@docu-mind/ui-material';
 
 @Component({
-  selector: 'ui-upload-section',
+  selector: 'app-upload-section',
   standalone: true,
   imports: [CommonModule, ...MATERIAL_MODULES],
   templateUrl: './upload-section.html',
@@ -15,7 +15,7 @@ export class UploadSectionComponent {
   readonly uploadSuccess = input<boolean>(false);
   readonly fileSelected = output<File>();
 
-  onFileDropped(event: DragEvent) {
+  onFileDropped(event: DragEvent): void {
     event.preventDefault();
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
@@ -23,12 +23,14 @@ export class UploadSectionComponent {
     }
   }
 
-  onDragOver(event: DragEvent) {
+  onDragOver(event: DragEvent): void {
     event.preventDefault();
   }
 
-  onFileSelected(event: Event) {
+  onFileSelected(event: Event): void {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const input = event.target as HTMLInputElement;
+    if (!input) return;
     if (input.files && input.files.length > 0) {
       this.fileSelected.emit(input.files[0]);
     }

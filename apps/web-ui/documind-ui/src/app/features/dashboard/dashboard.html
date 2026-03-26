@@ -24,52 +24,50 @@
     </div>
   } @else {
     <section class="dashboard__stats">
-      <ui-summary-card 
+      <app-summary-card 
         label="Total Documents" 
         [value]="stats().total" 
         icon="description"
         iconColor="primary"
-      ></ui-summary-card>
+      ></app-summary-card>
       
-      <ui-summary-card 
+      <app-summary-card 
         label="Processed" 
         [value]="stats().processed" 
         icon="check_circle"
         iconColor="primary"
-      ></ui-summary-card>
+      ></app-summary-card>
       
-      <ui-summary-card 
+      <app-summary-card 
         label="Pending" 
         [value]="stats().pending" 
         icon="pending"
         iconColor="accent"
-      ></ui-summary-card>
+      ></app-summary-card>
       
-      <ui-summary-card 
+      <app-summary-card 
         label="Failed" 
         [value]="stats().failed" 
         icon="error"
         iconColor="warn"
-      ></ui-summary-card>
+      ></app-summary-card>
     </section>
 
     <section class="dashboard__upload">
-      <ui-upload-section
+      <app-upload-section
         [isUploading]="isUploading()"
         [uploadSuccess]="uploadSuccess()"
         (fileSelected)="onUploadFile($event)"
-      ></ui-upload-section>
+      ></app-upload-section>
     </section>
 
     <section class="dashboard__recent">
       <div class="dashboard__section-header">
         <h2 class="dashboard__section-title">Recent Documents</h2>
       </div>
-      <ui-document-table 
+      <app-document-table 
         [documents]="documents.value() ?? []"
-        (view)="onViewDocument($event)"
-        (delete)="onDeleteDocument($event)"
-      ></ui-document-table>
+      ></app-document-table>
     </section>
   }
 </div>
