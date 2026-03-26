@@ -13,7 +13,7 @@ import { DocumentModule } from '../document/document.module';
     }),
     MongooseModule.forRootAsync({
       useFactory: () => ({
-        uri: process.env.MONGO_URI || 'mongodb://mongo:27017/nest',
+        uri: process.env.MONGO_URI || 'mongodb://mongo:27017/documind',
       }),
     }),
     DocumentModule,

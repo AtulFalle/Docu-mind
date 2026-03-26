@@ -20,7 +20,10 @@
             "input": "apps/web-ui/documind-ui/public"
           }
         ],
-        "styles": ["apps/web-ui/documind-ui/src/styles.scss"]
+        "styles": ["apps/web-ui/documind-ui/src/styles.scss"],
+        "stylePreprocessorOptions": {
+          "includePaths": ["ui-material/src/lib"]
+        }
       },
       "configurations": {
         "production": {
@@ -58,9 +61,8 @@
         }
       },
       "defaultConfiguration": "development",
-      "dependsOn": ["api:serve"],
       "options": {
-        "proxyConfig": "apps/web-ui/documind-ui/proxy.conf.json"
+        "proxyConfig": "apps/web-ui/documind-ui/proxy.conf.js"
       }
     },
     "lint": {

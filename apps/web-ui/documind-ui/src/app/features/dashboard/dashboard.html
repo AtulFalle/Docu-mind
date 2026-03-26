@@ -1,0 +1,75 @@
+<div class="dashboard">
+  <header class="dashboard__header">
+    <div class="dashboard__title-group">
+      <h1 class="dashboard__title">Document Dashboard</h1>
+      <p class="dashboard__subtitle">Manage and track your document processing pipeline</p>
+    </div>
+    <button mat-stroked-button color="primary" (click)="onRefresh()" [disabled]="documents.isLoading()">
+      <mat-icon>refresh</mat-icon>
+      Refresh Data
+    </button>
+  </header>
+
+  @if (documents.isLoading()) {
+    <div class="dashboard__loading">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Loading documents...</p>
+    </div>
+  } @else if (documents.error()) {
+    <div class="dashboard__error">
+      <mat-icon color="warn">error</mat-icon>
+      <h3>Failed to load dashboard</h3>
+      <p>There was an error fetching your data. Please try again later.</p>
+      <button mat-raised-button color="warn" (click)="onRefresh()">Retry</button>
+    </div>
+  } @else {
+    <section class="dashboard__stats">
+      <ui-summary-card 
+        label="Total Documents" 
+        [value]="stats().total" 
+        icon="description"
+        iconColor="primary"
+      ></ui-summary-card>
+      
+      <ui-summary-card 
+        label="Processed" 
+        [value]="stats().processed" 
+        icon="check_circle"
+        iconColor="primary"
+      ></ui-summary-card>
+      
+      <ui-summary-card 
+        label="Pending" 
+        [value]="stats().pending" 
+        icon="pending"
+        iconColor="accent"
+      ></ui-summary-card>
+      
+      <ui-summary-card 
+        label="Failed" 
+        [value]="stats().failed" 
+        icon="error"
+        iconColor="warn"
+      ></ui-summary-card>
+    </section>
+
+    <section class="dashboard__upload">
+      <ui-upload-section
+        [isUploading]="isUploading()"
+        [uploadSuccess]="uploadSuccess()"
+        (fileSelected)="onUploadFile($event)"
+      ></ui-upload-section>
+    </section>
+
+    <section class="dashboard__recent">
+      <div class="dashboard__section-header">
+        <h2 class="dashboard__section-title">Recent Documents</h2>
+      </div>
+      <ui-document-table 
+        [documents]="documents.value() ?? []"
+        (view)="onViewDocument($event)"
+        (delete)="onDeleteDocument($event)"
+      ></ui-document-table>
+    </section>
+  }
+</div>

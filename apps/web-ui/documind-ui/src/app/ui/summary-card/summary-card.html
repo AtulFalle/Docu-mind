@@ -1,0 +1,11 @@
+<mat-card class="summary-card">
+  <mat-card-content class="summary-card__content">
+    <div class="summary-card__icon-wrapper" [class.summary-card__icon-wrapper--accent]="iconColor() === 'accent'">
+      <mat-icon [color]="iconColor()">{{ icon() }}</mat-icon>
+    </div>
+    <div class="summary-card__data">
+      <span class="summary-card__label">{{ label() }}</span>
+      <h3 class="summary-card__value">{{ value() }}</h3>
+    </div>
+  </mat-card-content>
+</mat-card>

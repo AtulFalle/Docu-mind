@@ -1,0 +1,46 @@
+<mat-card class="upload-section">
+  <mat-card-content 
+    class="upload-section__drop-zone"
+    (dragover)="onDragOver($event)"
+    (drop)="onFileDropped($event)"
+  >
+    <div class="upload-section__content">
+      <mat-icon class="upload-section__icon">cloud_upload</mat-icon>
+      <h3 class="upload-section__title">Drag & Drop Documents Here</h3>
+      <p class="upload-section__subtitle">Supported formats: PDF, DOCX, TXT</p>
+      
+      <div class="upload-section__actions">
+        <input 
+          type="file" 
+          #fileInput 
+          (change)="onFileSelected($event)" 
+          hidden 
+          accept=".pdf,.docx,.txt"
+        >
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="fileInput.click()"
+          [disabled]="isUploading()"
+        >
+          <mat-icon>add</mat-icon>
+          Upload Document
+        </button>
+      </div>
+
+      @if (isUploading()) {
+        <div class="upload-section__status">
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          <p>Uploading document...</p>
+        </div>
+      }
+
+      @if (uploadSuccess()) {
+        <div class="upload-section__status upload-section__status--success">
+          <mat-icon>check_circle</mat-icon>
+          <p>Document uploaded successfully!</p>
+        </div>
+      }
+    </div>
+  </mat-card-content>
+</mat-card>

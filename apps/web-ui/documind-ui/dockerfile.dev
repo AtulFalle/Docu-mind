@@ -10,6 +10,5 @@ RUN npm install --legacy-peer-deps
 
 COPY . .
 
-ENV CHOKIDAR_USEPOLLING=true
-
-CMD ["npx", "nx", "serve", "api", "--watch"]
+# Ensure the library is built before serving. Note: --host 0.0.0.0 is usually enough for Docker.
+CMD ["sh", "-c", "npx nx build ui-material && npx nx serve documind-ui --host 0.0.0.0"]

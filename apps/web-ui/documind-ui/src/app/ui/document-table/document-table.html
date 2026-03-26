@@ -1,0 +1,55 @@
+<div class="document-table-container">
+  <table mat-table [dataSource]="documents()" class="document-table">
+    
+    <!-- File Name Column -->
+    <ng-container matColumnDef="fileName">
+      <th mat-header-cell *matHeaderCellDef>File Name</th>
+      <td mat-cell *matCellDef="let element" class="document-table__cell--bold">
+        {{ element.fileName }}
+      </td>
+    </ng-container>
+
+    <!-- Status Column -->
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let element">
+        <mat-chip-set>
+          <mat-chip [class]="'document-table__status--' + getStatusColor(element.status)">
+            {{ element.status }}
+          </mat-chip>
+        </mat-chip-set>
+      </td>
+    </ng-container>
+
+    <!-- Uploaded Date Column -->
+    <ng-container matColumnDef="createdAt">
+      <th mat-header-cell *matHeaderCellDef>Uploaded Date</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.createdAt | date:'medium' }}
+      </td>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let element">
+        <button mat-icon-button color="primary" (click)="onView(element.docId)" matTooltip="View Details">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="onDelete(element.docId)" matTooltip="Delete Document">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="document-table__row"></tr>
+  </table>
+  
+  @if (documents().length === 0) {
+    <div class="document-table__empty">
+      <mat-icon>description</mat-icon>
+      <p>No documents found.</p>
+    </div>
+  }
+</div>

@@ -137,6 +137,54 @@ services:
     networks:
       - documind-net
 
+  api:
+    build:
+      context: .
+      dockerfile: ./apps/backend/api/dockerfile.dev
+    container_name: documind-api-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      mongo:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    environment:
+      NODE_ENV: development
+      MONGO_URI: mongodb://mongo:27017/documind
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      MINIO_ENDPOINT: minio
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    networks:
+      - documind-net
+
+  web-ui:
+    build:
+      context: .
+      dockerfile: ./apps/web-ui/documind-ui/dockerfile.dev
+    container_name: documind-web-ui-dev
+    ports:
+      - "4200:4200"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - api
+    environment:
+      NODE_ENV: development
+      API_TARGET: http://api:3000
+    networks:
+      - documind-net
+
 volumes:
   mongo-data:
   qdrant-data:

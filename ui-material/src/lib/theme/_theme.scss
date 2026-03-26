@@ -1,0 +1,12 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+// Use the default Material 3 theme
+$theme: mat.define-theme();
+
+// Export mixin
+@mixin ui-material-theme {
+    @include mat.all-component-themes($theme);
+    @include mat.all-component-typographies($theme);
+}
