@@ -4,10 +4,12 @@
       <h1 class="dashboard__title">Document Dashboard</h1>
       <p class="dashboard__subtitle">Manage and track your document processing pipeline</p>
     </div>
-    <button mat-stroked-button color="primary" (click)="onRefresh()" [disabled]="documents.isLoading()">
-      <mat-icon>refresh</mat-icon>
-      Refresh Data
-    </button>
+    <div class="dashboard__header-actions">
+      <button mat-stroked-button color="primary" (click)="onRefresh()" [disabled]="documents.isLoading()">
+        <mat-icon>refresh</mat-icon>
+        Refresh Data
+      </button>
+    </div>
   </header>
 
   @if (documents.isLoading()) {
@@ -67,6 +69,7 @@
       </div>
       <app-document-table 
         [documents]="documents.value() ?? []"
+        (chat)="onChatWithDocument($event)"
       ></app-document-table>
     </section>
   }

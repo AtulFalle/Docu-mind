@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule, Router } from '@angular/router';
 import { MATERIAL_MODULES } from '@docu-mind/ui-material';
 import { SummaryCardComponent } from '../../ui/summary-card/summary-card';
 import { UploadSectionComponent } from '../../ui/upload-section/upload-section';
@@ -11,7 +12,8 @@ import { DashboardStats } from '../../core/models/types';
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
+    RouterModule,
     ...MATERIAL_MODULES,
     SummaryCardComponent,
     UploadSectionComponent,
@@ -23,6 +25,7 @@ import { DashboardStats } from '../../core/models/types';
 })
 export class DashboardComponent {
   private readonly documentService = inject(DocumentService);
+  private readonly router = inject(Router);
   
   readonly documents = this.documentService.documentResource;
   readonly isUploading = signal(false);
@@ -38,7 +41,7 @@ export class DashboardComponent {
     };
   });
 
-  onRefresh():void {
+  onRefresh(): void {
     this.documents.reload();
   }
 
@@ -54,5 +57,10 @@ export class DashboardComponent {
     } finally {
       this.isUploading.set(false);
     }
+  }
+
+  onChatWithDocument(event: { docId: string; fileName: string }): void {
+    const encodedFileName = encodeURIComponent(event.fileName);
+    this.router.navigate(['/chat', event.docId, encodedFileName]);
   }
 }

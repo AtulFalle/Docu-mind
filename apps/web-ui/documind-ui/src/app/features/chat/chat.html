@@ -1,0 +1,44 @@
+<div class="chat-container">
+  <header class="chat-header">
+    <div class="chat-header__left">
+      <button 
+        mat-icon-button 
+        (click)="goToDashboard()"
+        matTooltip="Back to Dashboard"
+      >
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="chat-header__title-group">
+        <h1 class="chat-header__title">DocuMind Chat</h1>
+        <p class="chat-header__subtitle">Ask questions about your documents</p>
+      </div>
+    </div>
+
+    <div class="chat-header__right">
+      <button 
+        mat-stroked-button
+        color="warn"
+        (click)="onClearChat()"
+        [disabled]="isLoading()"
+      >
+        <mat-icon>clearall</mat-icon>
+        Clear Chat
+      </button>
+    </div>
+  </header>
+
+  <div class="chat-main">
+    <app-message-list 
+      [messages]="messages()" 
+      [isLoading]="isLoading()"
+    ></app-message-list>
+  </div>
+
+  <footer class="chat-footer">
+    <app-message-input 
+      (sendMessage)="onSendMessage($event)"
+      (clearChat)="onClearChat()"
+      [isLoading]="isLoading()"
+    ></app-message-input>
+  </footer>
+</div>

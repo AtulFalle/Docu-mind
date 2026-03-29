@@ -1,0 +1,38 @@
+<div class="message-input">
+  <mat-form-field class="message-input__field" appearance="outline">
+    <mat-label>Type your message...</mat-label>
+    <textarea 
+      matInput 
+      [(ngModel)]="messageText" 
+      [disabled]="isLoading"
+      (keydown.control.enter)="onSendMessage()"
+      (keydown.meta.enter)="onSendMessage()"
+      rows="3"
+      class="message-input__textarea"
+    ></textarea>
+    <mat-hint>Press Ctrl+Enter or Click Send</mat-hint>
+  </mat-form-field>
+
+  <div class="message-input__actions">
+    <button 
+      mat-raised-button 
+      color="primary"
+      (click)="onSendMessage()"
+      [disabled]="!messageText.trim() || isLoading"
+      class="message-input__send-btn"
+    >
+      <mat-icon>{{ isLoading ? 'hourglass_empty' : 'send' }}</mat-icon>
+      <span class="message-input__btn-text">{{ isLoading ? 'Sending...' : 'Send' }}</span>
+    </button>
+    
+    <button 
+      mat-stroked-button
+      (click)="onClear()"
+      [disabled]="isLoading"
+      class="message-input__clear-btn"
+    >
+      <mat-icon>clear</mat-icon>
+      <span class="message-input__btn-text">Clear</span>
+    </button>
+  </div>
+</div>

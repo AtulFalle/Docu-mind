@@ -10,6 +10,13 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    gap: 16px;
+  }
+
+  &__header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
   }
 
   &__title-group {

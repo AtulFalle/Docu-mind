@@ -1,0 +1,57 @@
+<div class="message-list" #scrollContainer>
+  @if (messages.length === 0) {
+    <div class="message-list__empty">
+      <mat-icon class="message-list__empty-icon">chat_bubble_outline</mat-icon>
+      <p class="message-list__empty-text">No messages yet. Start a conversation!</p>
+    </div>
+  } @else {
+    <div class="message-list__content">
+      @for (message of messages; track message.id) {
+        <div 
+          class="message-item"
+          [ngClass]="'message-item--' + message.role"
+        >
+          <div class="message-item__avatar">
+            <mat-icon>{{ message.role === 'user' ? 'account_circle' : 'smart_toy' }}</mat-icon>
+          </div>
+
+          <div class="message-item__body">
+            <div class="message-item__header">
+              <span class="message-item__role">
+                {{ message.role === 'user' ? 'You' : 'DocuMind Assistant' }}
+              </span>
+              <span class="message-item__time">
+                {{ message.timestamp | date: 'short' }}
+              </span>
+            </div>
+
+            <div class="message-item__content">
+              {{ message.content }}
+            </div>
+
+            @if (message.relatedDocuments && message.relatedDocuments.length > 0) {
+              <div class="message-item__documents">
+                <span class="message-item__documents-label">Related Documents:</span>
+                <div class="message-item__documents-list">
+                  @for (docId of message.relatedDocuments; track docId) {
+                    <span class="message-item__document-tag">
+                      <mat-icon>description</mat-icon>
+                      <span class="message-item__document-name">{{ docId }}</span>
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="message-list__loading">
+      <mat-progress-spinner diameter="32"></mat-progress-spinner>
+      <p class="message-list__loading-text">DocuMind is thinking...</p>
+    </div>
+  }
+</div>
