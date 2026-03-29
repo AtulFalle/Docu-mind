@@ -31,8 +31,8 @@ export class ChatComponent implements OnInit {
   readonly messages = this.chatService.messageList;
   readonly isLoading = this.chatService.isLoading;
 
-  private currentDocId: string = '';
-  private currentDocName: string = '';
+  private currentDocId = '';
+  private currentDocName = '';
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
