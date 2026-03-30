@@ -4,8 +4,8 @@ import { HttpModule } from '@nestjs/axios';
 import { DocumentSchema } from './document.schema';
 import { DocumentController } from './document.controller';
 import { DocumentService } from './document.service';
-import { QueueService } from './queue.service';
-import { StorageService } from './storage.service';
+import { QueueService } from '../core/queue.service';
+import { StorageService } from '../core/storage.service';
 import { VirusService } from './virus.service';
 import { ConfigModule } from '@nestjs/config';
 

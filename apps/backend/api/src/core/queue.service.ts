@@ -85,6 +85,7 @@ export class QueueService implements OnModuleInit {
       });
 
       await this.channel.assertQueue('document_queue', { durable: true });
+      await this.channel.assertQueue('interview.transcription', { durable: true });
       
       await this.channel.assertQueue('document_status_queue', { durable: true });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -121,7 +122,7 @@ export class QueueService implements OnModuleInit {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async publish(event: any): Promise<void> {
+  async publish(event: any, targetQueue: string = 'document_queue'): Promise<void> {
     if (!this.queueEnabled) {
       this.logger.debug('Queue disabled via QUEUE_ENABLED=false - skipping message publish');
       return;
@@ -148,7 +149,7 @@ export class QueueService implements OnModuleInit {
 
     try {
       this.channel.sendToQueue(
-        'document_queue',
+        targetQueue,
         Buffer.from(JSON.stringify(message)),
         {
           persistent: true,

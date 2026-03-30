@@ -4,9 +4,9 @@ import { Injectable, BadRequestException, NotFoundException, OnModuleInit, Logge
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { v4 as uuid } from 'uuid';
-import { StorageService } from './storage.service';
+import { StorageService } from '../core/storage.service';
 import { VirusService } from './virus.service';
-import { QueueService } from './queue.service';
+import { QueueService } from '../core/queue.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Document } from './document.schema';

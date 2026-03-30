@@ -3,8 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { DocumentModule } from '../document/document.module';
-import { InterviewModule } from '../modules/interview/interview.module';
+import { TranscriptionModule } from './transcription/transcription.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -16,8 +16,7 @@ import { InterviewModule } from '../modules/interview/interview.module';
         uri: process.env.MONGO_URI || 'mongodb://mongo:27017/documind',
       }),
     }),
-    DocumentModule,
-    InterviewModule,
+    TranscriptionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

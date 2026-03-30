@@ -281,3 +281,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
+
+
+wisper path:
+cd whisper.cpp
+./build/bin/whisper-cli \ -m ./models/ggml-base.en.bin \ -f ../data/audio.wav \ --output-json \ -of /data/output
+

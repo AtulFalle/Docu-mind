@@ -158,6 +158,7 @@ services:
         condition: service_started
     environment:
       NODE_ENV: development
+      NX_DAEMON: "false"
       MONGO_URI: mongodb://mongo:27017/documind
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
       REDIS_HOST: redis
@@ -184,6 +185,33 @@ services:
       API_TARGET: http://api:3000
     networks:
       - documind-net
+  
+  transcription-worker:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.whisper
+    container_name: transcription-worker
+    volumes:
+      - transcription-data:/transcription
+      - ./data:/data
+      - .:/app
+      - /app/node_modules
+    working_dir: /app
+    depends_on:
+      - rabbitmq
+      - minio
+      - mongo
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      MONGO_URI: mongodb://mongo:27017/documind
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      MINIO_ENDPOINT: minio
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    command: ["npm", "run", "start:transcript"]
+    networks:
+      - documind-net
 
 volumes:
   mongo-data:
@@ -193,6 +221,7 @@ volumes:
   clamav-data:
   rabbitmq-data:
   ollama-data:
+  transcription-data:
 
 networks:
   documind-net:

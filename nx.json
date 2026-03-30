@@ -58,7 +58,11 @@
       "options": {
         "targetName": "test"
       },
-      "exclude": ["apps/backend/api-e2e/**/*", "apps/backend/api-e2e/**/*"]
+      "exclude": [
+        "apps/backend/api-e2e/**/*",
+        "apps/backend/api-e2e/**/*",
+        "transcription-worker-e2e/**/*"
+      ]
     }
   ],
   "targetDefaults": {

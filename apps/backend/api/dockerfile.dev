@@ -1,9 +1,9 @@
-FROM node:22-slim
+FROM node:22-alpine
 
 WORKDIR /app
 
-# Install necessary build tools and procps (required for Nx/ps command)
-RUN apt-get update && apt-get install -y python3 make g++ procps && rm -rf /var/lib/apt/lists/*
+# Install necessary build tools, procps (required for Nx/ps command), and FFmpeg for audio extraction
+RUN apk add --no-cache build-base python3 ffmpeg procps
 
 COPY package.json package-lock.json* ./
 RUN npm install --legacy-peer-deps
@@ -12,4 +12,4 @@ COPY . .
 
 ENV CHOKIDAR_USEPOLLING=true
 
-CMD ["npx", "nx", "serve", "api", "--watch"]
+CMD ["npm", "run", "start:api"]

@@ -54,6 +54,26 @@ export class StorageService {
     }
   }
 
+  async download(bucket: string, key: string, destPath: string): Promise<void> {
+    if (!this.storageEnabled) {
+      this.logger.debug('Storage disabled - skipping download');
+      return;
+    }
+
+    if (!this.client) {
+      throw new Error('MinIO client not available');
+    }
+
+    try {
+      await this.client.fGetObject(bucket, key, destPath);
+      this.logger.log(`File downloaded from ${bucket}/${key} to ${destPath}`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Failed to download file from MinIO: ${errorMessage}`);
+      throw new Error(`Storage download failed: ${errorMessage}`);
+    }
+  }
+
   async ensureBucket(bucket: string): Promise<void> {
     if (!this.storageEnabled) {
       this.logger.debug('Storage disabled - skipping bucket creation');
@@ -74,6 +94,26 @@ export class StorageService {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Failed to ensure bucket exists: ${errorMessage}`);
       throw new Error(`Storage bucket operation failed: ${errorMessage}`);
+    }
+  }
+
+  async delete(bucket: string, key: string): Promise<void> {
+    if (!this.storageEnabled) {
+      this.logger.debug('Storage disabled - skipping delete');
+      return;
+    }
+
+    if (!this.client) {
+      throw new Error('MinIO client not available');
+    }
+
+    try {
+      await this.client.removeObject(bucket, key);
+      this.logger.debug(`File deleted from ${bucket}/${key}`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Failed to delete file from MinIO: ${errorMessage}`);
+      throw new Error(`Storage delete failed: ${errorMessage}`);
     }
   }
 }

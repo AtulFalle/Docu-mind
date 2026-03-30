@@ -1,0 +1,36 @@
+FROM node:22-bookworm
+
+# Install dependencies for Whisper and Nx/Node monitoring
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    build-essential \
+    git \
+    curl \
+    cmake \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# Clone whisper.cpp
+WORKDIR /whisper.cpp
+RUN git clone https://github.com/ggerganov/whisper.cpp.git .
+
+# Build whisper.cpp
+RUN make
+
+# Download model (base)
+RUN bash ./models/download-ggml-model.sh base.en
+
+# Create and setup Node App directory
+WORKDIR /app
+
+# Copy package descriptors and install dependencies
+COPY package.json package-lock.json* ./
+RUN npm install --legacy-peer-deps
+
+# Copy the rest of the monorepo source (in dev environment this is mostly shadowed by volume mounts, but required for initial run)
+COPY . .
+
+# Enable hot-reloading for Nx polling
+ENV CHOKIDAR_USEPOLLING=true
+
+CMD ["npm", "run", "start:transcript"]
