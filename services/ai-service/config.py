@@ -24,3 +24,8 @@ MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minioadmin")
 
 # Collection Configuration
 COLLECTION_NAME = os.getenv("COLLECTION_NAME", "documents")
+
+# MongoDB Configuration
+MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://mongodb:27017")
+MONGODB_DB = os.getenv("MONGODB_DB", "documind")
+MONGODB_COLLECTION_INTERVIEWS = "interviews"

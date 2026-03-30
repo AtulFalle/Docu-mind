@@ -252,4 +252,96 @@ export class InterviewService implements OnModuleInit {
     );
     this.logger.log(`Interview ${interviewId} status updated to ${status}`);
   }
+
+  /**
+   * Request evaluation for an interview
+   */
+  async requestEvaluation(interviewId: string): Promise<{ status: string; message: string }> {
+    try {
+      // Fetch interview from MongoDB
+      const interview = await this.interviewModel.findOne({ interviewId }).lean();
+
+      if (!interview) {
+        throw new Error(`Interview ${interviewId} not found`);
+      }
+
+      // Check if interview has been completed and has transcripts
+      if (interview.status !== 'completed') {
+        throw new Error(`Interview ${interviewId} is not in completed status. Current status: ${interview.status}`);
+      }
+
+      if (!interview.transcripts || interview.transcripts.length === 0) {
+        throw new Error(`Interview ${interviewId} has no transcripts available`);
+      }
+
+      // Update evaluation status to pending using $set for consistency
+      await this.interviewModel.updateOne(
+        { interviewId },
+        {
+          $set: {
+            'evaluation.status': 'pending',
+            'evaluation.requestedAt': new Date(),
+          },
+        },
+      );
+      this.logger.log(`Evaluation status set to pending for interviewId: ${interviewId}`);
+
+      // Publish evaluation job to RabbitMQ
+      await this.queue.publish({
+        event: 'interview.evaluation_requested',
+        data: {
+          interviewId,
+        },
+      }, 'interview.evaluation');
+
+      this.logger.log(`Evaluation job queued for interviewId: ${interviewId}`);
+
+      return {
+        status: 'pending',
+        message: 'Evaluation job has been queued for processing',
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to request evaluation for ${interviewId}: ${errorMessage}`);
+      throw new Error(`Failed to request evaluation: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Get evaluation status for an interview
+   */
+  async getEvaluationStatus(interviewId: string): Promise<{
+    status: 'pending' | 'completed' | 'failed';
+    result?: object;
+    error?: string;
+    requestedAt?: Date;
+    completedAt?: Date;
+  }> {
+    try {
+      const interview = await this.interviewModel.findOne({ interviewId }).lean();
+
+      if (!interview) {
+        throw new Error(`Interview ${interviewId} not found`);
+      }
+
+      if (!interview.evaluation) {
+        return {
+          status: 'pending',
+          error: 'No evaluation has been requested',
+        };
+      }
+
+      return {
+        status: interview.evaluation.status,
+        result: interview.evaluation.result,
+        error: interview.evaluation.error,
+        requestedAt: interview.evaluation.requestedAt,
+        completedAt: interview.evaluation.completedAt,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to get evaluation status for ${interviewId}: ${errorMessage}`);
+      throw new Error(`Failed to get evaluation status: ${errorMessage}`);
+    }
+  }
 }

@@ -209,6 +209,7 @@ services:
       - qdrant
       - minio
       - ollama
+      - mongo
     environment:
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: "5672"
@@ -221,18 +222,31 @@ services:
       MINIO_SECRET_KEY: minioadmin
       OLLAMA_URL: http://ollama:11434
       COLLECTION_NAME: documents
+      MONGODB_URL: mongodb://mongo:27017
+      MONGODB_DB: documind
     networks:
       - documind-net
   transcription-worker:
     build:
-      context: ./docker
-      dockerfile: Dockerfile.whisper
+      context: .
+      dockerfile: ./docker/Dockerfile.whisper
     container_name: transcription-worker
     volumes:
-      - transcription-data:/transacription
+      - transcription-data:/transcription
       - ./data:/data
     working_dir: /app
-    command: ["sleep", "infinity"]
+    command: ["npm", "run", "start:transcript"]
+    depends_on:
+      - rabbitmq
+      - minio
+      - mongo
+    environment:
+      NODE_ENV: production
+      MONGO_URI: mongodb://mongo:27017/documind
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
     networks:
       - documind-net
 

@@ -8,3 +8,4 @@ minio
 qdrant-client
 python-multipart
 python-dotenv
+pymongo

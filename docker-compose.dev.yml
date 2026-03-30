@@ -14,19 +14,6 @@ services:
       timeout: 5s
       retries: 5
 
-  redis:
-    image: redis:7
-    container_name: documind-redis
-    ports:
-      - "6379:6379"
-    networks:
-      - documind-net
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   qdrant:
     image: qdrant/qdrant:latest
     container_name: documind-qdrant
@@ -111,9 +98,14 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - rabbitmq
-      - qdrant
-      - minio
+      rabbitmq:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+      minio:
+        condition: service_started
+      mongo:
+        condition: service_healthy
     environment:
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: "5672"
@@ -126,6 +118,8 @@ services:
       MINIO_SECRET_KEY: minioadmin
       OLLAMA_URL: http://host.docker.internal:11434
       COLLECTION_NAME: documents
+      MONGODB_URL: mongodb://mongo:27017
+      MONGODB_DB: documind
     networks:
       - documind-net
   ollama:
@@ -151,8 +145,6 @@ services:
       mongo:
         condition: service_healthy
       rabbitmq:
-        condition: service_healthy
-      redis:
         condition: service_healthy
       minio:
         condition: service_started

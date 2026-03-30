@@ -1,0 +1,19 @@
+<header class="app-header">
+  <div class="app-header__container">
+    <div class="app-header__branding">
+      <mat-icon class="app-header__logo">description</mat-icon>
+      <span class="app-header__app-name">DocuMind</span>
+    </div>
+
+    <nav class="app-header__nav">
+      <mat-tab-group
+        [selectedIndex]="activeTab()"
+        (selectedIndexChange)="onTabChange($event)"
+        class="app-header__tabs"
+      >
+        <mat-tab label="Documents"></mat-tab>
+        <mat-tab label="Interviews"></mat-tab>
+      </mat-tab-group>
+    </nav>
+  </div>
+</header>

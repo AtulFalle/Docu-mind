@@ -157,7 +157,7 @@ export class TranscriptionConsumer implements OnModuleInit, OnModuleDestroy {
       await this.interviewModel.findOneAndUpdate(
         { interviewId },
         { 
-          status: 'transcribed',
+          status: 'completed',
           transcripts: segments
         }
       );

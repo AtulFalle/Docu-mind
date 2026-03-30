@@ -1,0 +1,53 @@
+.interview-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+  background-color: var(--surface);
+}
+
+.interview-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  &__cell--bold {
+    font-weight: 600;
+  }
+
+  &__metric {
+    text-align: center;
+    font-weight: 500;
+  }
+
+  &__status--success {
+    background-color: rgba(76, 175, 80, 0.12);
+    color: #2e7d32;
+  }
+
+  &__status--warning {
+    background-color: rgba(255, 193, 7, 0.12);
+    color: #f57f17;
+  }
+
+  &__status--error {
+    background-color: rgba(244, 67, 54, 0.12);
+    color: #c62828;
+  }
+
+  &__status--default {
+    background-color: rgba(158, 158, 158, 0.12);
+    color: #424242;
+  }
+}
+
+::ng-deep .mat-mdc-table {
+  background-color: transparent;
+
+  th {
+    font-weight: 600;
+    background-color: var(--surface);
+  }
+
+  td {
+    padding: 16px;
+  }
+}

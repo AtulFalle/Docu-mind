@@ -1,0 +1,78 @@
+<div class="interviews">
+  <header class="interviews__header">
+    <div class="interviews__title-group">
+      <h1 class="interviews__title">Interview Management</h1>
+      <p class="interviews__subtitle">Upload and evaluate candidate interviews</p>
+    </div>
+    <div class="interviews__header-actions">
+      <button mat-stroked-button color="primary" (click)="onRefresh()" [disabled]="interviews.isLoading()">
+        <mat-icon>refresh</mat-icon>
+        Refresh Data
+      </button>
+    </div>
+  </header>
+
+  @if (interviews.isLoading()) {
+    <div class="interviews__loading">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Loading interviews...</p>
+    </div>
+  } @else if (interviews.error()) {
+    <div class="interviews__error">
+      <mat-icon color="warn">error</mat-icon>
+      <h3>Failed to load interviews</h3>
+      <p>There was an error fetching your data. Please try again later.</p>
+      <button mat-raised-button color="warn" (click)="onRefresh()">Retry</button>
+    </div>
+  } @else {
+    <section class="interviews__stats">
+      <app-summary-card
+        label="Total Interviews"
+        [value]="stats().total"
+        icon="videocam"
+        iconColor="primary"
+      ></app-summary-card>
+
+      <app-summary-card
+        label="Completed"
+        [value]="stats().completed"
+        icon="check_circle"
+        iconColor="primary"
+      ></app-summary-card>
+
+      <app-summary-card
+        label="Processing"
+        [value]="stats().processing"
+        icon="pending"
+        iconColor="accent"
+      ></app-summary-card>
+
+      <app-summary-card
+        label="Failed"
+        [value]="stats().failed"
+        icon="error"
+        iconColor="warn"
+      ></app-summary-card>
+    </section>
+
+    <section class="interviews__upload">
+      <app-upload-section
+        [isUploading]="isUploading()"
+        [uploadSuccess]="uploadSuccess()"
+        (fileSelected)="onUploadFile($event)"
+      ></app-upload-section>
+    </section>
+
+    <section class="interviews__recent">
+      <div class="interviews__section-header">
+        <h2 class="interviews__section-title">Recent Interviews</h2>
+      </div>
+      <app-interview-table
+        [interviews]="interviews.value() ?? []"
+        (view)="onViewInterview($event)"
+        (evaluate)="onEvaluateInterview($event)"
+        (delete)="onDeleteInterview($event)"
+      ></app-interview-table>
+    </section>
+  }
+</div>

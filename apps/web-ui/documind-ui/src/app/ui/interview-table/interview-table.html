@@ -1,0 +1,81 @@
+<div class="interview-table-container">
+  <table mat-table [dataSource]="interviews()" class="interview-table">
+
+    <!-- Video Path Column -->
+    <ng-container matColumnDef="videoPath">
+      <th mat-header-cell *matHeaderCellDef>Video</th>
+      <td mat-cell *matCellDef="let element" class="interview-table__cell--bold">
+        {{ element.videoPath | slice:0:30 }}{{ element.videoPath.length > 30 ? '...' : '' }}
+      </td>
+    </ng-container>
+
+    <!-- Status Column -->
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let element">
+        <mat-chip-set>
+          <mat-chip [class]="'interview-table__status--' + getStatusColor(element.status)">
+            {{ element.status }}
+          </mat-chip>
+        </mat-chip-set>
+      </td>
+    </ng-container>
+
+    <!-- Technical Score Column -->
+    <ng-container matColumnDef="technical">
+      <th mat-header-cell *matHeaderCellDef>Technical</th>
+      <td mat-cell *matCellDef="let element" class="interview-table__metric">
+        {{ getMetricDisplay(element, 'technical') }}
+      </td>
+    </ng-container>
+
+    <!-- Communication Score Column -->
+    <ng-container matColumnDef="communication">
+      <th mat-header-cell *matHeaderCellDef>Communication</th>
+      <td mat-cell *matCellDef="let element" class="interview-table__metric">
+        {{ getMetricDisplay(element, 'communication') }}
+      </td>
+    </ng-container>
+
+    <!-- Created Date Column -->
+    <ng-container matColumnDef="createdAt">
+      <th mat-header-cell *matHeaderCellDef>Created Date</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.createdAt | date:'medium' }}
+      </td>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let element">
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="onView(element.interviewId)"
+          matTooltip="View Details">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="accent"
+          (click)="onEvaluate(element.interviewId, element.status)"
+          [disabled]="element.status === 'uploaded' || element.status === 'processing'"
+          matTooltip="Request Evaluation">
+          <mat-icon>assessment</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="onDelete(element.interviewId)"
+          matTooltip="Delete Interview">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <!-- Header and Row Definitions -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>

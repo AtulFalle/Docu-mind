@@ -86,6 +86,7 @@ export class QueueService implements OnModuleInit {
 
       await this.channel.assertQueue('document_queue', { durable: true });
       await this.channel.assertQueue('interview.transcription', { durable: true });
+      await this.channel.assertQueue('interview.evaluation_results', { durable: true });
       
       await this.channel.assertQueue('document_status_queue', { durable: true });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -97,6 +98,21 @@ export class QueueService implements OnModuleInit {
             this.channel.ack(msg);
           } catch (e) {
             this.logger.error(`Error processing status message: ${e}`);
+            this.channel.nack(msg, false, false);
+          }
+        }
+      });
+
+      // Listen to interview evaluation results queue
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this.channel.consume('interview.evaluation_results', (msg: any) => {
+        if (msg) {
+          try {
+            const content = JSON.parse(msg.content.toString());
+            this.events.emit(content.event, content.data);
+            this.channel.ack(msg);
+          } catch (e) {
+            this.logger.error(`Error processing evaluation result message: ${e}`);
             this.channel.nack(msg, false, false);
           }
         }

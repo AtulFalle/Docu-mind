@@ -1,0 +1,73 @@
+.app-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  &__container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+
+  &__branding {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    color: white;
+    font-weight: 600;
+    font-size: 20px;
+  }
+
+  &__logo {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+
+  &__app-name {
+    letter-spacing: 0.5px;
+  }
+
+  &__nav {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__tabs {
+    ::ng-deep {
+      .mat-mdc-tab-labels {
+        border-bottom: none;
+        background: transparent;
+      }
+
+      .mat-mdc-tab {
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 500;
+        min-width: 140px;
+      }
+
+      .mat-mdc-tab.mat-mdc-tab-active {
+        color: white;
+      }
+
+      .mat-mdc-tab-header-pagination-chevron,
+      .mat-mdc-focus-indicator {
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+
+      .mdc-tab-indicator__content {
+        border-color: white;
+      }
+    }
+  }
+}

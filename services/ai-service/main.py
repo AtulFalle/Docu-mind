@@ -6,16 +6,29 @@ from service.embedding import embed_text
 from service.vector_store import search, init_collection
 from service.llm import generate_answer
 from consumer import start as start_consumer
+from evaluation_consumer import start as start_evaluation_consumer
 
-logging.basicConfig(level=logging.INFO)
+# Configure logging to suppress verbose pika and urllib3 logs
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+# Set pika and urllib3 to WARNING level to reduce noise
+logging.getLogger('pika').setLevel(logging.WARNING)
+logging.getLogger('pika.adapters').setLevel(logging.WARNING)
+logging.getLogger('pika.channel').setLevel(logging.WARNING)
+logging.getLogger('urllib3').setLevel(logging.WARNING)
+
 logger = logging.getLogger(__name__)
 
 consumer_thread = None
+evaluation_consumer_thread = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    global consumer_thread
+    global consumer_thread, evaluation_consumer_thread
     logger.info("Initializing Qdrant collection...")
     try:
         init_collection()
@@ -23,15 +36,20 @@ async def lifespan(app: FastAPI):
     except Exception as exc:
         logger.error(f"Could not initialize Qdrant collection: {exc}", exc_info=True)
 
-    logger.info("Starting RabbitMQ consumer thread...")
+    logger.info("Starting RabbitMQ document consumer thread...")
     consumer_thread = threading.Thread(target=start_consumer, daemon=True)
     consumer_thread.start()
-    logger.info("RabbitMQ consumer thread started")
+    logger.info("RabbitMQ document consumer thread started")
+
+    logger.info("Starting RabbitMQ evaluation consumer thread...")
+    evaluation_consumer_thread = threading.Thread(target=start_evaluation_consumer, daemon=True)
+    evaluation_consumer_thread.start()
+    logger.info("RabbitMQ evaluation consumer thread started")
     
     yield
     
     # Shutdown
-    logger.info("Shutting down RabbitMQ consumer...")
+    logger.info("Shutting down RabbitMQ consumers...")
 
 app = FastAPI(lifespan=lifespan)
 

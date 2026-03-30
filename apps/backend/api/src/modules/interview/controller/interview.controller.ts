@@ -17,6 +17,7 @@ import {
 import { InterviewService } from '../service/interview.service';
 import { UploadInterviewDto } from '../dto/upload-interview.dto';
 import { InterviewMetadataDto } from '../dto/interview-metadata.dto';
+import { InterviewEvaluationStatusDto } from '../dto/interview-evaluation.dto';
 
 @Controller('interview')
 export class InterviewController {
@@ -97,6 +98,60 @@ export class InterviewController {
       throw new Error(`Interview ${interviewId} not found`);
     }
     return this.mapToDto(interview);
+  }
+
+  @ApiOperation({ summary: 'Request evaluation for an interview' })
+  @ApiParam({
+    name: 'interviewId',
+    description: 'Interview ID (UUID)',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Evaluation job queued successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        status: { type: 'string', example: 'pending' },
+        message: { type: 'string', example: 'Evaluation job has been queued for processing' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - interview not in completed status or no transcripts',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Interview not found',
+  })
+  @Post(':interviewId/evaluate')
+  async requestEvaluation(
+    @Param('interviewId') interviewId: string,
+  ): Promise<{ status: string; message: string }> {
+    return this.interviewService.requestEvaluation(interviewId);
+  }
+
+  @ApiOperation({ summary: 'Get evaluation status for an interview' })
+  @ApiParam({
+    name: 'interviewId',
+    description: 'Interview ID (UUID)',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Evaluation status retrieved successfully',
+    type: InterviewEvaluationStatusDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Interview not found',
+  })
+  @Get(':interviewId/evaluation')
+  async getEvaluationStatus(
+    @Param('interviewId') interviewId: string,
+  ): Promise<any> {
+    return this.interviewService.getEvaluationStatus(interviewId);
   }
 
   /**
