@@ -1,289 +1,159 @@
-# DocuMind 🧠
+# DocuMind
 
-DocuMind is an **AI-powered SaaS platform** designed for high-performance document intelligence and automated resume screening. Built as a scalable **Nx Monorepo**, it integrates a NestJS backend with specialized Python AI services to handle complex document extraction and analysis.
+> AI-powered SaaS platform for high-performance document intelligence and automated resume screening.
 
----
-
-## 🚀 Key Features
-
-- **Intelligent RAG**: Advanced Retrieval-Augmented Generation for deep document understanding.
-- **Automated Screening**: Automated resume analysis using specialized AI models.
-- **AI-Powered Chat**: Interactive chat interface to query and analyze documents with real-time AI responses.
-- **Event-Driven Architecture**: High-reliability processing using RabbitMQ and MinIO.
-- **Nx Monorepo**: Unified development experience for API, UI, and AI Workers.
-- **Production-Grade CI/CD**: Optimized GitHub Actions with Docker-native caching.
+DocuMind is a scalable, enterprise-grade solution built with a comprehensive tech stack including NestJS, Angular, and Python. It leverages Retrieval-Augmented Generation (RAG) and specialized AI models to deliver intelligent document analysis and automated screening capabilities.
 
 ---
 
-## 💬 Chat Feature
+## Core Capabilities
 
-The DocuMind Chat feature enables users to interactively query their documents through a ChatGPT-like interface:
+- **Intelligent Document Analysis**: Advanced RAG-powered extraction and understanding of document content
+- **Resume Screening**: Automated analysis using specialized ML models
+- **Interactive Query Interface**: Real-time chat for document exploration and Q&A
+- **Event-Driven Processing**: High-reliability document pipeline with RabbitMQ and MinIO
+- **Scalable Architecture**: Built on Nx monorepo for organized, maintainable codebase
 
-### Overview
-- **Real-time Document Querying**: Ask questions about specific documents and receive AI-powered answers
-- **Context-Aware Responses**: AI analyzes document content to provide accurate, contextual responses
-- **Related Documentation**: System identifies and displays related documents referenced in responses
-- **Clean UI**: Material Design-based interface with message history and loading states
+---
 
-### User Flow
-1. User uploads a document from the dashboard
-2. Once processed, document appears with a **Chat** button in the actions column
-3. Clicking **Chat** opens the chat interface for that specific document
-4. User can ask questions about the document content
-5. Backend processes the query via the LLM service and returns AI-generated answers
-6. Chat maintains conversation history within the session
+## System Architecture
 
-### API Endpoint
-
-**POST** `/api/documents/:docId/query`
-
-**Request Body**:
-```json
-{
-  "question": "What are the main points in this document?"
-}
-```
-
-**Response**:
-```json
-{
-  "answer": "The document discusses...",
-  "relatedDocuments": ["doc-001", "doc-002"]
-}
-```
-
-### Architecture
+DocuMind uses an event-driven, microservices architecture:
 
 ```
-Frontend (Angular)
-    ↓
-ChatComponent receives docId from URL
-    ↓
-ChatService makes API call to /api/documents/:docId/query
-    ↓
-NestJS Backend (DocumentController)
-    ↓
-AI Queue Service (RabbitMQ)
-    ↓
-Python AI Service (LLM Processing)
-    ↓
-Returns: { answer, relatedDocuments }
-    ↓
-Frontend displays message with context
+[User Upload] → [NestJS API] → [RabbitMQ Queue] → [Python AI Service] → [Database]
+                      ↓                                    ↓
+                   MinIO Storage                      MongoDB / Qdrant
 ```
 
-### Implementation Details
-
-**Frontend**:
-- **Component**: `apps/web-ui/documind-ui/src/app/features/chat/`
-- **Service**: `apps/web-ui/documind-ui/src/app/core/services/chat.service.ts`
-- **SubComponents**: 
-  - `MessageListComponent` - Displays chat messages with animations
-  - `MessageInputComponent` - Text input for user queries
-- **State Management**: Angular Signals for reactive state updates
-- **Change Detection**: OnPush for optimal performance
-
-**Backend**:
-- **Endpoint**: `apps/backend/api/src/document/document.controller.ts:query()`
-- **Service**: Handles document context and AI query delegation
-- **Integration**: Integrates with RabbitMQ queue for AI service communication
-
-### Features
-
-✅ **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices  
-✅ **Auto-Scroll**: Chat automatically scrolls to latest message  
-✅ **Smooth Animations**: Messages appear with slide-in animation  
-✅ **Error Handling**: User-friendly error messages for failed queries  
-✅ **Loading States**: Visual indicators while processing queries  
-✅ **Clear History**: Option to reset chat and start fresh conversation  
-✅ **Message Timestamps**: Each message shows when it was sent  
-✅ **Related Documents**: Shows which documents are referenced in responses  
+**Components:**
+- **API Layer** (`apps/backend/api`): Document management, user uploads, virus scanning
+- **Message Queue**: RabbitMQ for reliable event processing
+- **AI Service** (`services/ai-service`): Python-based document processing and embedding generation
+- **Storage**: MinIO (document storage), MongoDB/Qdrant (metadata and embeddings)
 
 ---
 
-## 🏗 System Architecture
+## Technology Stack
 
-DocuMind follows a decoupled, event-driven pattern for document processing:
+| Component | Technology |
+|-----------|-----------|
+| **Monorepo** | [Nx](https://nx.dev/) |
+| **Backend** | [NestJS](https://nestjs.com/) (Node.js 22) |
+| **Frontend** | Angular with RxJS, Material Design |
+| **AI/ML** | Python 3.11, FastAPI/Uvicorn |
+| **Databases** | MongoDB, Qdrant (vector store) |
+| **Message Queue** | RabbitMQ |
+| **Object Storage** | MinIO (S3-compatible) |
+| **Containerization** | Docker |
+| **CI/CD** | GitHub Actions |
 
-1.  **API (`apps/backend/api`)**: Handles user uploads, virus scanning, and initial storage in **MinIO**.
-2.  **Messaging**: Publishes a `document.uploaded` event to **RabbitMQ**.
-3.  **AI Service (`services/ai-service`)**: Consumes the event, fetches the document, and runs the extraction/vectorization pipeline.
-4.  **Storage**: Extracted data and embeddings are stored in specialized databases (MongoDB/Qdrant).
-
----
-
-## 🛠 Tech Stack
-
-- **Monorepo**: [Nx](https://nx.dev/)
-- **Backend**: [NestJS](https://nestjs.com/) (Node.js 22)
-- **AI/ML**: Python 3.11, [Uvicorn](https://www.uvicorn.org/)
-- **Databases**: [MongoDB](https://www.mongodb.com/), [Qdrant](https://qdrant.tech/)
-- **Messaging**: [RabbitMQ](https://www.rabbitmq.com/)
-- **Storage**: [MinIO](https://min.io/) (S3 Compatible)
-- **DevOps**: Docker, [GitHub Actions](https://github.com/features/actions)
-
----
-
-## 🚥 Getting Started
+## Quick Start
 
 ### Prerequisites
-- Node.js 22.x
-- Docker & Docker Compose
-- Nx CLI (`npm i -g nx`)
 
-### Setup
-1.  **Install Dependencies**:
-    ```bash
-    npm install --legacy-peer-deps
-    ```
+- Node.js 22.x or higher
+- Docker and Docker Compose
+- Nx CLI: `npm install -g nx`
+- Python 3.11+ (for AI service development)
 
-2.  **Run Infrastructure**:
-    ```bash
-    npm run services:dev
-    ```
+### Installation
 
-3.  **Start Development Servers**:
-    - **API**: `npx nx serve api`
-    - **UI**: `npx nx serve documind-ui`
-    - **AI**: `cd services/ai-service && python main.py`
-
----
-
-## 📈 Development Commands
-
-| Task | Command |
-| :--- | :--- |
-| **Lint All** | `npx nx run-many -t lint` |
-| **Test All** | `npx nx run-many -t test` |
-| **Build All** | `npx nx run-many -t build --prod` |
-| **Project Graph** | `npx nx graph` |
-| **Serve UI** | `npx nx serve documind-ui` |
-| **Serve API** | `npx nx serve api` |
-
----
-
-## 📚 Chat Feature Development Guide
-
-### Accessing the Chat Feature
-
-1. Start the development servers:
+1. **Clone and Install**:
    ```bash
-   npm run services:dev  # Infrastructure
-   npx nx serve api     # Backend
-   npx nx serve documind-ui  # Frontend
+   git clone https://github.com/your-org/docu-mind.git
+   cd docu-mind
+   npm install --legacy-peer-deps
    ```
 
-2. Navigate to Dashboard (`http://localhost:4200/dashboard`)
+2. **Start Infrastructure**:
+   ```bash
+   npm run services:dev
+   ```
+   This starts RabbitMQ, MongoDB, MinIO, and other required services.
 
-3. Upload or select a document and click the **Chat** icon in the actions column
+3. **Run Development Servers**:
+   ```bash
+   # In separate terminals:
+   npx nx serve api              # Backend on http://localhost:3000
+   npx nx serve documind-ui      # Frontend on http://localhost:4200
+   python services/ai-service/main.py  # AI service
+   ```
 
-4. Start asking questions about the document
+4. **Access the Application**:
+   - UI: http://localhost:4200
+   - API: http://localhost:3000
+   - API Documentation: http://localhost:3000/api
 
-### File Structure
+---
 
-```
-apps/web-ui/documind-ui/src/app/
-├── features/
-│   └── chat/
-│       ├── chat.ts              # Main component
-│       ├── chat.html            # Template
-│       └── chat.scss            # Styles
-├── ui/
-│   ├── message-input/           # Input component
-│   │   ├── message-input.ts
-│   │   ├── message-input.html
-│   │   └── message-input.scss
-│   └── message-list/            # Messages component
-│       ├── message-list.ts
-│       ├── message-list.html
-│       └── message-list.scss
-└── core/
-    ├── services/
-    │   └── chat.service.ts      # API integration
-    └── models/
-        └── chat.types.ts        # TypeScript interfaces
-```
+## Development
 
-### Extending the Chat Feature
-
-#### Add Custom Response Processing
-
-Update `ChatService.sendMessage()` to add custom logic:
-
-```typescript
-async sendMessage(userMessage: string, docId: string): Promise<void> {
-  // Add custom preprocessing
-  const processedMessage = this.preprocessQuery(userMessage);
-  
-  // Call API
-  const response = await fetch(`/api/documents/${docId}/query`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question: processedMessage })
-  });
-  
-  // Process response
-  const data = await response.json();
-  this.addAssistantMessage(data.answer, data.relatedDocuments);
-}
-```
-
-#### Customize Message Display
-
-Modify `MessageListComponent` template to add custom styling or features:
-
-```html
-<div class="message-item__content custom-styling">
-  {{ message.content }}
-</div>
-```
-
-#### Backend Integration (NestJS)
-
-Update the query endpoint in `DocumentController`:
-
-```typescript
-@Post(':docId/query')
-async query(
-  @Param('docId') docId: string,
-  @Body() body: { question: string }
-): Promise<{ answer: string; relatedDocuments?: string[] }> {
-  // Custom logic here
-  return this.service.query(docId, body.question);
-}
-```
-
-### Testing the API Endpoint
-
-Use cURL to test the chat API:
+### Common Commands
 
 ```bash
-curl -X POST http://localhost:3000/api/documents/doc-123/query \
-  -H "Content-Type: application/json" \
-  -d '{"question": "What is this document about?"}'
+# Linting
+npx nx run-many --target=lint
+
+# Testing
+npx nx run-many --target=test
+npx nx run-many --target=test --coverage
+
+# Building
+npx nx run-many --target=build --configuration=production
+
+# Visualization
+npx nx graph
+
+# Run specific project
+npx nx serve <project-name>
+npx nx build <project-name>
+```
+
+### Project Structure
+
+```
+.
+├── apps/
+│   ├── backend/api/          # NestJS API server
+│   ├── web-ui/documind-ui/   # Angular frontend
+│   └── transcription-worker/ # Transcription service
+├── services/
+│   └── ai-service/           # Python AI service
+├── packages/                 # Shared libraries
+├── docker/                   # Docker configurations
+└── monitoring/              # Prometheus, Loki config
 ```
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/new-feature`
-3. Commit changes: `git commit -am 'Add new feature'`
-4. Push to branch: `git push origin feature/new-feature`
-5. Submit a Pull Request
+We welcome contributions from the community. Please follow these guidelines:
 
----
+1. **Fork** the repository
+2. **Create** a feature branch: `git checkout -b feature/your-feature-name`
+3. **Commit** with clear messages: `git commit -am 'Add feature: description'`
+4. **Push** to your branch: `git push origin feature/your-feature-name`
+5. **Submit** a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+For major changes, please open an issue first to discuss proposed changes.
 
 ---
 
+## Resources
 
+- **Documentation**: See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- **Security**: Review [SECURITY.md](SECURITY.md)
+- **License**: This project is licensed under the MIT License - see [LICENSE](LICENSE) for details
 
-wisper path:
-cd whisper.cpp
-./build/bin/whisper-cli \ -m ./models/ggml-base.en.bin \ -f ../data/audio.wav \ --output-json \ -of /data/output
+---
+
+## Support
+
+For questions and support, please open an issue on GitHub or reach out to the maintainers.
+
+---
+
+**Built with ❤️ for intelligent document processing**
 
